@@ -19,7 +19,24 @@ async function getAllMarkdownFiles(dir, baseDir = null) {
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
       
-      if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'web-viewer') {
+      // Only scan specific directories we want
+      const allowedDirs = [
+        'architecture-design',
+        'code-review-optimization', 
+        'coding-fundamentals',
+        'debugging-troubleshooting',
+        'setup-guides',
+        'templates',
+        'testing',
+        'automation-tools',
+        'claude-code',
+        'cloud-deployment',
+        'development-environment',
+        'ide-configuration',
+        'project-templates'
+      ];
+      
+      if (entry.isDirectory() && (allowedDirs.includes(entry.name) || dir === baseDir)) {
         const subFiles = await getAllMarkdownFiles(fullPath, baseDir);
         files.push(...subFiles);
       } else if (entry.isFile() && entry.name.endsWith('.md')) {
@@ -61,7 +78,8 @@ async function extractTitle(filePath) {
 }
 
 async function buildNavigationTree() {
-  const rootDir = path.join(__dirname, '../..');
+  const rootDir = path.join(__dirname, '..');
+  console.log(`Scanning directory: ${rootDir}`);
   const files = await getAllMarkdownFiles(rootDir);
   
   const tree = {
