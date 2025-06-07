@@ -1,0 +1,34 @@
+{
+  "name": "prompts-web-viewer",
+  "version": "1.0.0",
+  "description": "Web interface for browsing AI coding prompts collection",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "build": "echo 'No build step required for this simple server'",
+    "test": "echo 'No tests specified'"
+  },
+  "keywords": [
+    "prompts",
+    "ai",
+    "coding",
+    "documentation",
+    "web-viewer"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "marked": "^9.1.6",
+    "highlight.js": "^11.9.0",
+    "express-static-gzip": "^2.1.7",
+    "chokidar": "^3.5.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

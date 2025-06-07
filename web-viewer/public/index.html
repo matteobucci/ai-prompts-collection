@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Coding Prompts Collection</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">
+                    <i class="fas fa-brain"></i>
+                    AI Coding Prompts
+                </h1>
+                <div class="header-actions">
+                    <button class="search-toggle" id="searchToggle">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="search-container" id="searchContainer">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search prompts, guides, and documentation...">
+                    <button class="search-close" id="searchClose">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="search-results" id="searchResults"></div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <h3>Navigation</h3>
+                    <button class="sidebar-toggle" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+                
+                <nav class="navigation" id="navigation">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        Loading navigation...
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="content" id="content">
+                <div class="welcome-screen">
+                    <div class="welcome-content">
+                        <div class="welcome-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h2>Welcome to AI Coding Prompts Collection</h2>
+                        <p>A comprehensive collection of prompts and guides to enhance your AI-assisted coding capabilities.</p>
+                        
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <i class="fas fa-code"></i>
+                                <h3>Coding Fundamentals</h3>
+                                <p>Clean code, design patterns, and best practices</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-bug"></i>
+                                <h3>Debugging & Troubleshooting</h3>
+                                <p>Systematic problem-solving approaches</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-search"></i>
+                                <h3>Code Review</h3>
+                                <p>Quality improvement and optimization</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-sitemap"></i>
+                                <h3>Architecture & Design</h3>
+                                <p>System design and architectural decisions</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-cogs"></i>
+                                <h3>Setup Guides</h3>
+                                <p>IDE configuration, automation, and deployment</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-template"></i>
+                                <h3>Project Templates</h3>
+                                <p>Modern project scaffolding and boilerplates</p>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-start">
+                            <h3>Quick Start</h3>
+                            <ol>
+                                <li>Browse categories in the sidebar</li>
+                                <li>Use the search function to find specific topics</li>
+                                <li>Click on any guide to view detailed content</li>
+                                <li>Copy prompts and adapt them to your needs</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-area" id="contentArea" style="display: none;">
+                    <div class="content-header">
+                        <div class="breadcrumb" id="breadcrumb"></div>
+                        <div class="content-actions">
+                            <button class="action-btn" id="copyBtn" title="Copy content">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="action-btn" id="printBtn" title="Print">
+                                <i class="fas fa-print"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <article class="content-body" id="contentBody">
+                        <!-- Content will be loaded here -->
+                    </article>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading content...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
