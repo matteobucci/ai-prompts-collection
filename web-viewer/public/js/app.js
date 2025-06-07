@@ -4,7 +4,8 @@ const state = {
   navigation: null,
   searchResults: [],
   theme: localStorage.getItem('theme') || 'light',
-  isLoading: false
+  isLoading: false,
+  isStatic: false // Will be detected automatically
 };
 
 // DOM Elements
@@ -138,16 +139,62 @@ async function handleSearch() {
   
   try {
     showLoading(true);
-    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-    const results = await response.json();
+    let results;
     
-    displaySearchResults(results, query);
+    if (state.isStatic) {
+      // Static mode - simple client-side search
+      results = performClientSearch(query);
+      displaySearchResults(results, query);
+    } else {
+      // Server mode - use API search
+      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      results = await response.json();
+      displaySearchResults(results, query);
+    }
   } catch (error) {
     console.error('Search error:', error);
     showToast('Search failed. Please try again.', 'error');
   } finally {
     showLoading(false);
   }
+}
+
+function performClientSearch(query) {
+  const results = [];
+  const searchTerm = query.toLowerCase();
+  
+  if (!state.navigation) return results;
+  
+  // Search through all navigation items
+  Object.entries(state.navigation).forEach(([sectionName, section]) => {
+    if (Array.isArray(section)) {
+      section.forEach(file => {
+        if (file.title.toLowerCase().includes(searchTerm) || 
+            file.path.toLowerCase().includes(searchTerm)) {
+          results.push({
+            file: file,
+            matches: [{ content: file.title, line: 1 }]
+          });
+        }
+      });
+    } else {
+      Object.entries(section).forEach(([categoryName, files]) => {
+        if (Array.isArray(files)) {
+          files.forEach(file => {
+            if (file.title.toLowerCase().includes(searchTerm) || 
+                file.path.toLowerCase().includes(searchTerm)) {
+              results.push({
+                file: file,
+                matches: [{ content: file.title, line: 1 }]
+              });
+            }
+          });
+        }
+      });
+    }
+  });
+  
+  return results.slice(0, 10); // Limit results
 }
 
 function displaySearchResults(results, query) {
@@ -211,16 +258,35 @@ function handleSearchKeydown(e) {
   }
 }
 
-// Navigation
+// Detect environment and load navigation
 async function loadNavigation() {
   try {
-    const response = await fetch('/api/navigation');
-    state.navigation = await response.json();
-    renderNavigation();
+    // Try API first (server mode)
+    let response = await fetch('/api/navigation');
+    if (response.ok) {
+      state.isStatic = false;
+      state.navigation = await response.json();
+      renderNavigation();
+      return;
+    }
   } catch (error) {
-    console.error('Failed to load navigation:', error);
-    elements.navigation.innerHTML = '<div class="loading">Failed to load navigation</div>';
+    console.log('API not available, trying static mode...');
   }
+  
+  try {
+    // Fallback to static mode
+    const response = await fetch('./navigation.json');
+    if (response.ok) {
+      state.isStatic = true;
+      state.navigation = await response.json();
+      renderNavigation();
+      return;
+    }
+  } catch (error) {
+    console.error('Failed to load navigation in static mode:', error);
+  }
+  
+  elements.navigation.innerHTML = '<div class="loading">Failed to load navigation</div>';
 }
 
 function renderNavigation() {
@@ -280,13 +346,24 @@ async function loadContent(path) {
     state.isLoading = true;
     showLoading(true);
     
-    const response = await fetch(`/api/content?path=${encodeURIComponent(path)}`);
+    let response;
+    let data;
     
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+    if (state.isStatic) {
+      // Static mode - load from JSON files
+      response = await fetch(`./content/${path}.json`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      data = await response.json();
+    } else {
+      // Server mode - use API
+      response = await fetch(`/api/content?path=${encodeURIComponent(path)}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      data = await response.json();
     }
-    
-    const data = await response.json();
     
     state.currentPath = path;
     window.location.hash = encodeURIComponent(path);
@@ -396,12 +473,18 @@ async function copyContent() {
   if (!state.currentPath) return;
   
   try {
-    const response = await fetch(`/api/content?path=${encodeURIComponent(state.currentPath)}`);
-    const data = await response.json();
+    let markdownContent;
     
-    // Get the raw markdown content by reading the file directly through the API
-    const markdownResponse = await fetch(`/api/raw?path=${encodeURIComponent(state.currentPath)}`);
-    const markdownContent = await markdownResponse.text();
+    if (state.isStatic) {
+      // Static mode - get from JSON
+      const response = await fetch(`./content/${state.currentPath}.json`);
+      const data = await response.json();
+      markdownContent = data.raw || data.content;
+    } else {
+      // Server mode - use API
+      const response = await fetch(`/api/raw?path=${encodeURIComponent(state.currentPath)}`);
+      markdownContent = await response.text();
+    }
     
     await copyToClipboard(markdownContent);
     showToast('Content copied to clipboard!', 'success');

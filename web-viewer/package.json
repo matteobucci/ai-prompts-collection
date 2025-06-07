@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "build": "echo 'No build step required for this simple server'",
+    "build": "node build.js",
     "test": "echo 'No tests specified'"
   },
   "keywords": [

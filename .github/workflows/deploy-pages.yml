@@ -33,10 +33,10 @@ jobs:
           cd web-viewer
           npm ci
       
-      - name: Build application
+      - name: Build static application
         run: |
           cd web-viewer
-          npm run build 2>/dev/null || echo "No build script found, using static files"
+          npm run build
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -44,7 +44,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'web-viewer/public'
+          path: 'web-viewer/dist'
 
   deploy:
     environment:
