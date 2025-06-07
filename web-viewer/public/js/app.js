@@ -3,7 +3,8 @@ const state = {
   currentPath: null,
   navigation: null,
   searchResults: [],
-  theme: localStorage.getItem('theme') || 'light'
+  theme: localStorage.getItem('theme') || 'light',
+  isLoading: false
 };
 
 // DOM Elements
@@ -36,7 +37,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load content from URL hash
   const hash = window.location.hash.substring(1);
   if (hash) {
-    await loadContent(decodeURIComponent(hash));
+    const decodedPath = decodeURIComponent(hash);
+    await loadContent(decodedPath);
   }
 });
 
@@ -87,7 +89,10 @@ function bindEvents() {
   window.addEventListener('popstate', (e) => {
     const hash = window.location.hash.substring(1);
     if (hash) {
-      loadContent(decodeURIComponent(hash));
+      const decodedPath = decodeURIComponent(hash);
+      if (decodedPath !== state.currentPath) {
+        loadContent(decodedPath);
+      }
     } else {
       showWelcomeScreen();
     }
@@ -165,7 +170,7 @@ function displaySearchResults(results, query) {
     }
     
     return `
-      <div class="search-result" onclick="selectSearchResult('${file.path}')">
+      <div class="search-result" onclick="selectSearchResult('${escapeQuotes(file.path)}')">
         <div class="search-result-title">${file.title}</div>
         <div class="search-result-path">${file.path}</div>
         ${snippets}
@@ -184,6 +189,10 @@ function highlightText(text, query) {
 
 function escapeRegex(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function escapeQuotes(string) {
+  return string.replace(/'/g, "\\'").replace(/"/g, '\\"');
 }
 
 function selectSearchResult(path) {
@@ -226,7 +235,7 @@ function renderNavigation() {
     if (Array.isArray(section)) {
       // Direct files
       section.forEach(file => {
-        html += `<a href="#${encodeURIComponent(file.path)}" class="nav-item" onclick="loadContent('${file.path}')">${file.title}</a>`;
+        html += `<a href="#${encodeURIComponent(file.path)}" class="nav-item" onclick="event.preventDefault(); loadContent('${escapeQuotes(file.path)}')">${file.title}</a>`;
       });
     } else {
       // Categories
@@ -240,7 +249,7 @@ function renderNavigation() {
           html += `<div class="nav-items">`;
           
           files.forEach(file => {
-            html += `<a href="#${encodeURIComponent(file.path)}" class="nav-item" onclick="loadContent('${file.path}')">${file.title}</a>`;
+            html += `<a href="#${encodeURIComponent(file.path)}" class="nav-item" onclick="event.preventDefault(); loadContent('${escapeQuotes(file.path)}')">${file.title}</a>`;
           });
           
           html += `</div></div>`;
@@ -265,9 +274,10 @@ function toggleSidebar() {
 
 // Content Loading
 async function loadContent(path) {
-  if (!path) return;
+  if (!path || state.isLoading || path === state.currentPath) return;
   
   try {
+    state.isLoading = true;
     showLoading(true);
     
     const response = await fetch(`/api/content?path=${encodeURIComponent(path)}`);
@@ -294,6 +304,7 @@ async function loadContent(path) {
     console.error('Failed to load content:', error);
     showToast('Failed to load content. Please try again.', 'error');
   } finally {
+    state.isLoading = false;
     showLoading(false);
   }
 }
@@ -388,8 +399,8 @@ async function copyContent() {
     const response = await fetch(`/api/content?path=${encodeURIComponent(state.currentPath)}`);
     const data = await response.json();
     
-    // Get the raw markdown content
-    const markdownResponse = await fetch(`/${state.currentPath}`);
+    // Get the raw markdown content by reading the file directly through the API
+    const markdownResponse = await fetch(`/api/raw?path=${encodeURIComponent(state.currentPath)}`);
     const markdownContent = await markdownResponse.text();
     
     await copyToClipboard(markdownContent);

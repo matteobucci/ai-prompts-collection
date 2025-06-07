@@ -46,7 +46,7 @@ async function getAllMarkdownFiles(dir, baseDir = null) {
         const subFiles = await getAllMarkdownFiles(fullPath, baseDir);
         files.push(...subFiles);
       } else if (entry.isFile() && entry.name.endsWith('.md')) {
-        const relativePath = path.relative(baseDir, fullPath);
+        const relativePath = path.relative(baseDir, fullPath).replace(/\\/g, '/');
         files.push({
           path: relativePath,
           fullPath: fullPath,
@@ -78,6 +78,7 @@ async function extractTitle(filePath) {
     // Fallback to filename
     return path.basename(filePath, '.md').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   } catch (error) {
+    console.error(`Error extracting title from ${filePath}:`, error);
     return path.basename(filePath, '.md');
   }
 }
@@ -113,7 +114,7 @@ async function buildNavigationTree() {
   
   // Organize files into categories
   files.forEach(file => {
-    const pathParts = file.path.split(path.sep);
+    const pathParts = file.path.split('/');
     
     if (pathParts[0] === 'coding-fundamentals') {
       tree['Prompt Categories']['Coding Fundamentals'].push(file);
@@ -226,6 +227,23 @@ app.get('/api/content', async (req, res) => {
   } catch (error) {
     console.error('Error loading content:', error);
     res.status(404).json({ error: 'Content not found' });
+  }
+});
+
+app.get('/api/raw', async (req, res) => {
+  const filePath = req.query.path;
+  
+  if (!filePath) {
+    return res.status(400).json({ error: 'Path parameter required' });
+  }
+  
+  try {
+    const fullPath = path.join(__dirname, '../..', filePath);
+    const content = await fs.readFile(fullPath, 'utf-8');
+    res.type('text/plain').send(content);
+  } catch (error) {
+    console.error('Error reading raw file:', error);
+    res.status(404).send('File not found');
   }
 });
 
