@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initializeTheme();
   bindEvents();
   await loadNavigation();
+  bindFeatureCards();
   
   // Load content from URL hash
   const hash = window.location.hash.substring(1);
@@ -464,6 +465,87 @@ function showWelcomeScreen() {
   elements.breadcrumb.innerHTML = '';
   window.location.hash = '';
   state.currentPath = null;
+}
+
+// Feature Cards Functionality
+function bindFeatureCards() {
+  const featureCards = document.querySelectorAll('.feature-card.clickable');
+  
+  featureCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const category = card.dataset.category;
+      const title = card.dataset.title;
+      
+      // Find the first file in this category
+      const categoryPath = findCategoryPath(category);
+      if (categoryPath) {
+        loadContent(categoryPath);
+      } else {
+        // If no specific file found, expand the category in navigation
+        expandNavigationCategory(title);
+        showToast(`Browse ${title} in the navigation panel`, 'info');
+      }
+    });
+    
+    // Add hover effects
+    card.addEventListener('mouseenter', () => {
+      card.style.transform = 'translateY(-4px)';
+    });
+    
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'translateY(0)';
+    });
+  });
+}
+
+function findCategoryPath(category) {
+  if (!state.navigation) return null;
+  
+  // First try to find a README file for the category
+  const readmePath = `${category}/README.md`;
+  
+  // Check if this file exists in navigation
+  for (const [sectionName, section] of Object.entries(state.navigation)) {
+    if (Array.isArray(section)) {
+      const file = section.find(f => f.path === readmePath);
+      if (file) return file.path;
+    } else {
+      for (const [categoryName, files] of Object.entries(section)) {
+        if (Array.isArray(files)) {
+          const file = files.find(f => f.path === readmePath);
+          if (file) return file.path;
+        }
+      }
+    }
+  }
+  
+  // If no README found, return the first file in the category
+  for (const [sectionName, section] of Object.entries(state.navigation)) {
+    if (Array.isArray(section)) {
+      const file = section.find(f => f.path.startsWith(category + '/'));
+      if (file) return file.path;
+    } else {
+      for (const [categoryName, files] of Object.entries(section)) {
+        if (Array.isArray(files)) {
+          const file = files.find(f => f.path.startsWith(category + '/'));
+          if (file) return file.path;
+        }
+      }
+    }
+  }
+  
+  return null;
+}
+
+function expandNavigationCategory(title) {
+  // Find and expand the navigation category
+  const categoryElements = document.querySelectorAll('.nav-category-title');
+  categoryElements.forEach(element => {
+    if (element.textContent.trim().includes(title)) {
+      const category = element.parentElement;
+      category.classList.remove('collapsed');
+    }
+  });
 }
 
 // Utility Functions

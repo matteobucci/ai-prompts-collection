@@ -412,11 +412,27 @@ body {
   border: 1px solid var(--border-color);
   transition: var(--transition);
   text-align: left;
+  position: relative;
+}
+
+.feature-card.clickable {
+  cursor: pointer;
+  user-select: none;
 }
 
 .feature-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px var(--shadow-lg);
+}
+
+.feature-card.clickable:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px var(--shadow-lg);
+  border-color: var(--accent-primary);
+}
+
+.feature-card.clickable:active {
+  transform: translateY(-2px);
 }
 
 .feature-card i {
@@ -435,6 +451,34 @@ body {
 .feature-card p {
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
+  margin-bottom: 0;
+}
+
+.card-action {
+  position: absolute;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+  width: 32px;
+  height: 32px;
+  background-color: var(--accent-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: var(--transition);
+}
+
+.card-action i {
+  color: white;
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+.feature-card.clickable:hover .card-action {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .quick-start {
