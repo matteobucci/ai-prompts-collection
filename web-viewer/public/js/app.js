@@ -30,6 +30,7 @@ const state = {
 
 // DOM Elements
 const elements = {
+  logo: document.getElementById('logo'),
   searchToggle: document.getElementById('searchToggle'),
   searchContainer: document.getElementById('searchContainer'),
   searchInput: document.getElementById('searchInput'),
@@ -84,6 +85,12 @@ function updateThemeIcon() {
 
 // Event Bindings
 function bindEvents() {
+  // Logo click to return home
+  elements.logo.addEventListener('click', () => {
+    showWelcomeScreen();
+    showToast('Welcome back to the homepage!', 'success');
+  });
+  
   // Search functionality
   elements.searchToggle.addEventListener('click', toggleSearch);
   elements.searchClose.addEventListener('click', toggleSearch);

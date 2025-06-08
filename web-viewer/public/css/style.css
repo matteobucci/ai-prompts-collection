@@ -102,6 +102,21 @@ body {
   gap: var(--spacing-sm);
 }
 
+.clickable-logo {
+  cursor: pointer;
+  transition: var(--transition);
+  user-select: none;
+}
+
+.clickable-logo:hover {
+  color: var(--accent-secondary);
+  transform: scale(1.02);
+}
+
+.clickable-logo:active {
+  transform: scale(0.98);
+}
+
 .header-actions {
   display: flex;
   align-items: center;
