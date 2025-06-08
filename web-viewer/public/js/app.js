@@ -31,6 +31,9 @@ const state = {
 // DOM Elements
 const elements = {
   logo: document.getElementById('logo'),
+  aboutBtn: document.getElementById('aboutBtn'),
+  aboutModal: document.getElementById('aboutModal'),
+  aboutModalClose: document.getElementById('aboutModalClose'),
   searchToggle: document.getElementById('searchToggle'),
   searchContainer: document.getElementById('searchContainer'),
   searchInput: document.getElementById('searchInput'),
@@ -91,6 +94,10 @@ function bindEvents() {
     showToast('Welcome back to the homepage!', 'success');
   });
   
+  // About modal
+  elements.aboutBtn.addEventListener('click', openAboutModal);
+  elements.aboutModalClose.addEventListener('click', closeAboutModal);
+  
   // Search functionality
   elements.searchToggle.addEventListener('click', toggleSearch);
   elements.searchClose.addEventListener('click', toggleSearch);
@@ -111,6 +118,20 @@ function bindEvents() {
   document.addEventListener('click', (e) => {
     if (!elements.searchContainer.contains(e.target) && !elements.searchToggle.contains(e.target)) {
       closeSearch();
+    }
+  });
+  
+  // Close modal when clicking outside
+  elements.aboutModal.addEventListener('click', (e) => {
+    if (e.target === elements.aboutModal) {
+      closeAboutModal();
+    }
+  });
+  
+  // Close modal on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && elements.aboutModal.classList.contains('visible')) {
+      closeAboutModal();
     }
   });
   
@@ -553,6 +574,17 @@ function expandNavigationCategory(title) {
       category.classList.remove('collapsed');
     }
   });
+}
+
+// About Modal Functions
+function openAboutModal() {
+  elements.aboutModal.classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAboutModal() {
+  elements.aboutModal.classList.remove('visible');
+  document.body.style.overflow = '';
 }
 
 // Utility Functions
