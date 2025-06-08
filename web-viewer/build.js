@@ -201,8 +201,18 @@ async function buildStatic() {
     }
   }
   
-  // Copy static files
+  // Copy static files and modify for GitHub Pages
   await copyDirectory(path.join(__dirname, 'public'), distDir);
+  
+  // Update HTML for GitHub Pages (convert absolute paths to relative)
+  const indexPath = path.join(distDir, 'index.html');
+  let indexContent = await fs.readFile(indexPath, 'utf-8');
+  
+  // Convert absolute paths to relative for GitHub Pages
+  indexContent = indexContent.replace('href="/css/style.css"', 'href="css/style.css"');
+  indexContent = indexContent.replace('src="/js/app.js"', 'src="js/app.js"');
+  
+  await fs.writeFile(indexPath, indexContent);
   
   console.log('Static build complete!');
 }

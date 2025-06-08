@@ -1,3 +1,23 @@
+// Detect environment and set base URL
+function detectEnvironment() {
+  const hostname = window.location.hostname;
+  const pathname = window.location.pathname;
+  
+  // Check if we're on GitHub Pages
+  if (hostname.includes('github.io') && pathname.includes('/ai-prompts-collection/')) {
+    // Set base tag for GitHub Pages
+    const baseTag = document.createElement('base');
+    baseTag.href = '/ai-prompts-collection/';
+    document.head.insertBefore(baseTag, document.head.firstChild);
+    return true;
+  }
+  
+  return false;
+}
+
+// Initialize environment detection
+const isGitHubPages = detectEnvironment();
+
 // App State
 const state = {
   currentPath: null,
